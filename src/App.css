@@ -1,0 +1,23 @@
+
+.App {
+  text-align: center;
+}
+
+.p-button {
+  margin: 1em !important;
+}
+.p-grid {
+  margin-right: 0.5em !important;
+}
+
+.serverMessageSpan {
+  margin-left: 1em !important;
+}
+
+.userDropdown {
+  margin-left: 1em;
+}
+
+.numberSeven {
+  background-color: black !important;
+}
