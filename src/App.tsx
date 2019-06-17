@@ -29,9 +29,10 @@ const Users: UserOptions[] = [
 interface IMainPageState {
   cardsLostToMonopoly: string;
   cardsLostToSeven: string;
-  serverIp: string;
+  relayAddress: string;
   serverResponse: string;
   user: string;
+  
 }
 
 
@@ -77,7 +78,7 @@ class MainPage extends React.Component<{}, IMainPageState> {
     this.state = {
       cardsLostToMonopoly: "0",
       cardsLostToSeven: "0",
-      serverIp: "ws://localhost:8080/ws",
+      relayAddress: "ws://localhost:8080/ws",
       serverResponse: "server response goes here",
       user: Users[0].value
     }
@@ -85,7 +86,7 @@ class MainPage extends React.Component<{}, IMainPageState> {
 
   public componentWillMount = async () => {
     console.log("connecting to server")
-    await this._socket.Connect(this.state.serverIp).then();
+    await this._socket.Connect(this.state.relayAddress).then();
   }
 
   public onMessage = (msg: MessageEvent) => {
@@ -111,8 +112,15 @@ class MainPage extends React.Component<{}, IMainPageState> {
       <div>
         <div style={{ height: "50px" }} />
         <div className="p-grid">
+          <span>
           <Dropdown className="userDropdown" value={this.state.user} options={Users} onChange={(e)=>this.setState({user: e.value})} placeholder="User:"/>
-          
+          <label htmlFor="relayAddress" className="param-label">Relay Address</label>
+          <InputText id="relayAddress" style={{ width: "14em" }} spellCheck={false} className="param-input"
+              value={this.state.relayAddress}
+              onChange={(event: React.FormEvent<HTMLInputElement>) => {
+                this.setState({ cardsLostToMonopoly: event.currentTarget!.value })
+              }} />
+          </span>
         </div>
         <div className="p-grid">
           <Button className="p-col param-column p-button" label="2" onClick={() => { this.sendMessage(MessageType.Roll, "2") }} />
