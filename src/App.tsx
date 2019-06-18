@@ -49,6 +49,7 @@ class SocketData {
   public Connect = (addr: string): Promise<WebSocket | Event> => {
     return new Promise((resolve, reject) => {
       this._socket = new WebSocket(addr);
+     
       this._socket.onmessage = this.onMessage;
       this._socket.onopen = () => {
         resolve(this._socket);
@@ -205,7 +206,12 @@ class MainPage extends React.Component<{}, IMainPageState> {
         <div className="p-grid">
           <Button className="p-col param-column numberButton" label="11" onClick={() => { this.sendMessage(MessageType.Roll, "11") }} disabled={!this.state.connected}/>
           <Button className="p-col param-column numberButton" label="12" onClick={() => { this.sendMessage(MessageType.Roll, "12") }} disabled={!this.state.connected}/>
-          <Button className="p-col param-column numberButton baronButton" label="Play Baron" onClick={() => { this.sendMessage(MessageType.AllowMoveBaron, "True") }} disabled={!this.state.connected}/>
+          <Button className="p-col param-column baronButton" label="Play Baron" onClick={() => { this.sendMessage(MessageType.AllowMoveBaron, "True") }} disabled={!this.state.connected}/>
+        </div>
+        <div style={{ height: "1em" }} />
+        <div className="p-grid">
+          <Button className="p-col param-column actionButton undoButton" label="Undo" onClick={() => { this.sendMessage(MessageType.Undo, "true") }} disabled={!this.state.connected}/>
+          <Button className="p-col param-column actionButton nextButton" label="Next" onClick={() => { this.sendMessage(MessageType.Next, "true") }} disabled={!this.state.connected}/>
         </div>
         <div style={{ height: "1em" }} />
         <div className="p-col param-column">
@@ -235,10 +241,7 @@ class MainPage extends React.Component<{}, IMainPageState> {
             <Button label="Update" onClick={() => { this.sendMessage(MessageType.CardsLostToMonopoly, this.state.cardsLostToMonopoly) }} disabled={!this.state.connected}/>
           </span>
         </div>
-        <div className="p-grid">
-          <Button className="p-col param-column actionButton undoButton" label="Undo" onClick={() => { this.sendMessage(MessageType.Undo, "true") }} disabled={!this.state.connected}/>
-          <Button className="p-col param-column actionButton nextButton" label="Next" onClick={() => { this.sendMessage(MessageType.Next, "true") }} disabled={!this.state.connected}/>
-        </div>
+     
 
         <label className="param-label" >Server Message</label>
         <div className="messageDiv">

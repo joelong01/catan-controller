@@ -32,10 +32,19 @@
   margin: 1em 0em .5em 1em !important;
   height: 6em !important;
 }
+.numberButton > .p-button-text {
+  font-size: 3em;
+  padding: 0em !important;
+}
 
 .baronButton {
-  background-color: green !important;
-  
+  background-color: green !important;  
+  margin: 1em 0em .5em 1em !important;
+  height: 6em !important;
+}
+.baronButton > .p-button-text {
+  font-size: 1.5em !important;
+  padding: 0em !important;
 }
 
 .p-grid {
@@ -80,7 +89,14 @@
   
 }
 
-.messageDiv {
-  
+.actionButton > .p-button-text {
+  font-size: 2em !important;
+  padding: 0em !important;
+}
+
+.messageDiv {  
   margin-left: .5em !important;  
 }
+
+
+
