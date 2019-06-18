@@ -92,7 +92,7 @@ class MainPage extends React.Component<{}, IMainPageState> {
     }
     catch (er) { // if there is an error, delete the cookie
       console.log(`error loading cookie: ${er}`);
-       this.cookie.delete("settings");
+      // this.cookie.delete("settings");
     }
     this.state = {
       cardsLostToMonopoly: "0",
