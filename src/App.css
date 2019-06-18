@@ -5,9 +5,13 @@
 
 .txtRelay {
   margin-left: 1em !important;
-  width: 75% !important;
+  width: 56% !important;
   margin-bottom: 1em !important;
   margin-top: 1em !important;
+}
+.connectButton {
+  margin-left: 0.5em !important;
+  align-items: right;
 }
 
 .relayLabel {
@@ -20,7 +24,7 @@
 }
 .userDropdown {
   margin-left: 1em;  
-  width: 75% !important;
+  width: 56% !important;
   
 }
 
@@ -63,9 +67,17 @@
   margin: 0em !important;
 }
 
-.actionButton {
-  margin: 1em !important;  
+.actionButton {  
   width: 40% !important;
+}
+
+.undoButton {
+  margin: 1em !important;  
+}
+
+.nextButton {
+  margin: 1em 0em !important;  
+  
 }
 
 .messageDiv {

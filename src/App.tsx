@@ -33,6 +33,7 @@ interface IMainPageState {
   relayAddress: string;
   serverResponse: string;
   user: string;
+  connected: boolean;
 
 }
 
@@ -80,7 +81,7 @@ class MainPage extends React.Component<{}, IMainPageState> {
   private cookie: Cookie = new Cookies();
   private mySettings: ICatanSettings = {
     relayAddress: "ws://10.0.75.1:8080/ws",
-    user: "Joe"
+    user: "Joe",
   };
   constructor(props: {}) {
     super(props);
@@ -99,15 +100,15 @@ class MainPage extends React.Component<{}, IMainPageState> {
       cardsLostToSeven: "0",
       relayAddress: this.mySettings.relayAddress,
       serverResponse: "server response goes here",
-      user: this.mySettings.user
+      user: this.mySettings.user,
+      connected: false
     }
 
 
   }
 
   public componentWillMount = async () => {
-    console.log("connecting to server")
-    await this._socket.Connect(this.state.relayAddress).then();
+
   }
 
   public onMessage = (msg: MessageEvent) => {
@@ -123,8 +124,12 @@ class MainPage extends React.Component<{}, IMainPageState> {
       User: this.state.user,
       Value: value,
     }
-
-    this._socket.send(JSON.stringify(msg));
+    try {
+      this._socket.send(JSON.stringify(msg));
+    }
+    catch {
+      this.setState({connected: false})
+    }
 
   }
 
@@ -139,22 +144,40 @@ class MainPage extends React.Component<{}, IMainPageState> {
 
 
         <label className="relayLabel">Relay</label>
-        <InputText id="relayAddress" style={{ width: "14em" }} spellCheck={false} className="param-input txtRelay"
+        <InputText id="relayAddress" spellCheck={false} className="param-input txtRelay"
           value={this.state.relayAddress}
           onFocus={(event: React.FocusEvent<HTMLInputElement>) => event.currentTarget!.select()}
           onChange={(event: React.FormEvent<HTMLInputElement>) => {
-            this.setState({ relayAddress: event.currentTarget!.value })
+            this.setState({ relayAddress: event.currentTarget!.value, connected: false })            
           }}
 
           onBlur={(event: React.FormEvent<HTMLInputElement>) => {
             this.mySettings.relayAddress = this.state.relayAddress;
             this.saveSettings();
           }}
-
         />
+        <Button className="p-button connectButton" label="Connect" disabled={this.state.connected} onClick={(async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          this.sendMessage(MessageType.Roll, "2")
+          console.log("connecting to server")
+          event.currentTarget!.disabled = true;
+          var isConnected:boolean = false;
+          try {
+            await this._socket.Connect(this.state.relayAddress).then();            
+            isConnected = true;
+            this.sendMessage(MessageType.Next, "connected");            
+          }
+          catch (e) {
+            this.setState({serverResponse: "error connecting to server "})                                    
+          }
+          finally {
+            this.setState({connected: isConnected})
+            event.currentTarget!.disabled = isConnected;
+            console.log("%o", this.state) 
+          }
+        })} />
         <div>
           <label className="userLabel">User</label>
-          <Dropdown className="userDropdown" value={this.state.user} options={Users}
+          <Dropdown className="userDropdown" value={this.state.user} options={Users} disabled={!this.state.connected}
             placeholder="User:"
             onChange={(e: { originalEvent: Event; value: any; }) => {
               this.setState({ user: e.value })
@@ -165,29 +188,30 @@ class MainPage extends React.Component<{}, IMainPageState> {
         </div>
         <div style={{ height: "1em" }} />
         <div className="p-grid">
-          <Button className="p-col param-column p-button numberButton" label="2" onClick={() => { this.sendMessage(MessageType.Roll, "2") }} />
-          <Button className="p-col param-column p-button numberButton" label="3" onClick={() => { this.sendMessage(MessageType.Roll, "3") }} />
-          <Button className="p-col param-column p-button numberButton" label="4" onClick={() => { this.sendMessage(MessageType.Roll, "4") }} />
+          <Button className="p-col param-column p-button numberButton" label="2" onClick={() => { this.sendMessage(MessageType.Roll, "2") }} disabled={!this.state.connected} />
+          <Button className="p-col param-column p-button numberButton" label="3" onClick={() => { this.sendMessage(MessageType.Roll, "3") }} disabled={!this.state.connected}/>
+          <Button className="p-col param-column p-button numberButton" label="4" onClick={() => { this.sendMessage(MessageType.Roll, "4") }} disabled={!this.state.connected}/>
         </div>
         <div className="p-grid">
-          <Button className="p-col param-column p-button numberButton" label="5" onClick={() => { this.sendMessage(MessageType.Roll, "5") }} />
-          <Button className="p-col param-column p-button-danger numberButton" label="6" onClick={() => { this.sendMessage(MessageType.Roll, "6") }} />
-          <Button className="p-col param-column p-button p-button-rounded numberSeven numberButton" label="7" onClick={() => { this.sendMessage(MessageType.Roll, "7") }} />
+          <Button className="p-col param-column p-button numberButton" label="5" onClick={() => { this.sendMessage(MessageType.Roll, "5") }} disabled={!this.state.connected}/>
+          <Button className="p-col param-column p-button-danger numberButton" label="6" onClick={() => { this.sendMessage(MessageType.Roll, "6") }} disabled={!this.state.connected}/>
+          <Button className="p-col param-column p-button p-button-rounded numberSeven numberButton" label="7" onClick={() => { this.sendMessage(MessageType.Roll, "7") }} disabled={!this.state.connected}/>
         </div>
         <div className="p-grid">
-          <Button className="p-col param-column p-button-danger  numberButton" label="8" onClick={() => { this.sendMessage(MessageType.Roll, "8") }} />
-          <Button className="p-col param-column  numberButton" label="9" onClick={() => { this.sendMessage(MessageType.Roll, "9") }} />
-          <Button className="p-col param-column numberButton" label="10" onClick={() => { this.sendMessage(MessageType.Roll, "10") }} />
+          <Button className="p-col param-column p-button-danger  numberButton" label="8" onClick={() => { this.sendMessage(MessageType.Roll, "8") }} disabled={!this.state.connected}/>
+          <Button className="p-col param-column  numberButton" label="9" onClick={() => { this.sendMessage(MessageType.Roll, "9") }} disabled={!this.state.connected} />
+          <Button className="p-col param-column numberButton" label="10" onClick={() => { this.sendMessage(MessageType.Roll, "10") }} disabled={!this.state.connected}/>
         </div>
         <div className="p-grid">
-          <Button className="p-col param-column numberButton" label="11" onClick={() => { this.sendMessage(MessageType.Roll, "11") }} />
-          <Button className="p-col param-column numberButton" label="12" onClick={() => { this.sendMessage(MessageType.Roll, "12") }} />
-          <Button className="p-col param-column numberButton baronButton" label="Play Baron" onClick={() => { this.sendMessage(MessageType.AllowMoveBaron, "True") }} />
+          <Button className="p-col param-column numberButton" label="11" onClick={() => { this.sendMessage(MessageType.Roll, "11") }} disabled={!this.state.connected}/>
+          <Button className="p-col param-column numberButton" label="12" onClick={() => { this.sendMessage(MessageType.Roll, "12") }} disabled={!this.state.connected}/>
+          <Button className="p-col param-column numberButton baronButton" label="Play Baron" onClick={() => { this.sendMessage(MessageType.AllowMoveBaron, "True") }} disabled={!this.state.connected}/>
         </div>
         <div style={{ height: "1em" }} />
         <div className="p-col param-column">
           <span className="p-float-label">
             <InputText id="cardsLostToSeven" spellCheck={false} style={{ width: "14em" }} value={this.state.cardsLostToSeven} className="param-input lostCardInput"
+              disabled={!this.state.connected}
               onFocus={(event: React.FocusEvent<HTMLInputElement>) => event.currentTarget!.select()}
               onChange={(event: React.FormEvent<HTMLInputElement>) => {
                 const val: string = event.currentTarget!.value;
@@ -195,24 +219,25 @@ class MainPage extends React.Component<{}, IMainPageState> {
                 this.setState({ cardsLostToSeven: val })
               }} />
             <label htmlFor="cardsLostToSeven" className="param-label labelForLostCards">Cards Lost to 7</label>
-            <Button label="Update" onClick={() => { this.sendMessage(MessageType.CardsLostToSeven, this.state.cardsLostToSeven) }} />
+            <Button label="Update" onClick={() => { this.sendMessage(MessageType.CardsLostToSeven, this.state.cardsLostToSeven) }} disabled={!this.state.connected}/>
           </span>
         </div>
         <div className="p-col param-column">
           <span className="p-float-label" >
             <InputText id="cardsLostToMonopoly" spellCheck={false} className="param-input lostCardInput"
+              disabled={!this.state.connected}
               value={this.state.cardsLostToMonopoly}
               onFocus={(event: React.FocusEvent<HTMLInputElement>) => event.currentTarget!.select()}
               onChange={(event: React.FormEvent<HTMLInputElement>) => {
                 this.setState({ cardsLostToMonopoly: event.currentTarget!.value })
               }} />
             <label htmlFor="cardsLostToMonopoly" className="param-label labelForLostCards" >Cards Lost to Monopoly</label>
-            <Button label="Update" onClick={() => { this.sendMessage(MessageType.CardsLostToMonopoly, this.state.cardsLostToMonopoly) }} />
+            <Button label="Update" onClick={() => { this.sendMessage(MessageType.CardsLostToMonopoly, this.state.cardsLostToMonopoly) }} disabled={!this.state.connected}/>
           </span>
         </div>
         <div className="p-grid">
-          <Button className="p-col param-column actionButton" label="Undo" onClick={() => { this.sendMessage(MessageType.Undo, "true") }} />
-          <Button className="p-col param-column actionButton" label="Next" onClick={() => { this.sendMessage(MessageType.Next, "true") }} />
+          <Button className="p-col param-column actionButton undoButton" label="Undo" onClick={() => { this.sendMessage(MessageType.Undo, "true") }} disabled={!this.state.connected}/>
+          <Button className="p-col param-column actionButton nextButton" label="Next" onClick={() => { this.sendMessage(MessageType.Next, "true") }} disabled={!this.state.connected}/>
         </div>
 
         <label className="param-label" >Server Message</label>
